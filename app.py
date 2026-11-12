@@ -46,6 +46,8 @@ def load_demo_db() -> Database | None:
 
 if "db" not in st.session_state:
     st.session_state.db = load_demo_db()
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
 
 # ============================================================ 工具函数
