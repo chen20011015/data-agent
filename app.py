@@ -126,10 +126,18 @@ def render_result(res) -> None:
                     break
             if numeric_col:
                 label_col = [c for c in res.columns if c != numeric_col][0]
-                st.bar_chart(
-                    {str(d[label_col]): d[numeric_col] for d in data},
-                    height=260,
-                )
+                try:
+                    import pandas as pd
+
+                    df = pd.DataFrame(data)[[label_col, numeric_col]].copy()
+                    # 类别列必须转成字符串，否则被当成数值轴，柱子会叠在一起
+                    df[label_col] = df[label_col].astype(str)
+                    if len(df) <= 24:
+                        st.bar_chart(df, x=label_col, y=numeric_col, height=260)
+                    else:
+                        st.line_chart(df, x=label_col, y=numeric_col, height=260)
+                except Exception:
+                    pass
 
     with st.expander("Agent 决策链路"):
         render_trace(res.trace)
