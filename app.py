@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import glob
 import html
 import os
 
@@ -26,6 +27,25 @@ SAMPLES = [
     "华东和华南的销售额对比",
     "哪个渠道客单价最高",
 ]
+
+
+def load_demo_db() -> Database | None:
+    """首次访问自动载入仓库里的示例数据，让访客不用先上传文件就能试。"""
+    db = Database()
+    paths = sorted(glob.glob(os.path.join("demo_data", "*.csv")))
+    if not paths:
+        return None
+    for path in paths:
+        table = os.path.splitext(os.path.basename(path))[0]
+        try:
+            db.load_csv_file(table, path)
+        except Exception:
+            continue
+    return db if db.tables else None
+
+
+if "db" not in st.session_state:
+    st.session_state.db = load_demo_db()
 
 
 # ============================================================ 工具函数
